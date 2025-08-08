@@ -5,6 +5,8 @@ export const createDomain = async (req, res) => {
   if (!req.body.domain) return res.status(400).json({ error: "Domain required" });
 
   const result = await svc.setupDomain(req.body.domain, req.user.id);
+  console.log('result', result);
+  
   res.status(201).json(result);
 };
 
