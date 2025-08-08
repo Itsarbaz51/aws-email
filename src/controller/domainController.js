@@ -27,9 +27,19 @@ export const getDNSRecords = async (req, res) => {
 };
 
 export const verifyDomain = async (req, res) => {
-  const ok = await svc.verifyDomainInSES(req.params.domain);
+  if (!req.params.domain) {
+    return res.status(400).json({ error: "Domain required" });
+  }
+  const domain = await Prisma.domain.findUnique({
+    where: { id: req.params.domain },
+  });
+  if (!domain) return res.status(404).json({ error: "Domain not found" });
+
+  const ok = await svc.verifyDomainInSES(domain.name);
+  console.log("ok", ok);
+  if (!ok) return res.status(400).json({ error: "Verification failed" });
   if (ok)
-    await prisma.domain.update({
+    await Prisma.domain.update({
       where: { name: req.params.domain },
       data: { status: "VERIFIED" },
     });
