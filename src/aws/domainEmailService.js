@@ -14,6 +14,7 @@ import {
 import prisma from "../db/db.js";
 import dayjs from "dayjs";
 import Prisma from "../db/db.js";
+import bcrypt from "bcryptjs";
 
 export class DomainEmailService {
   constructor() {
@@ -120,22 +121,34 @@ export class DomainEmailService {
   }
 
   // Mailbox creation
-  async createMailbox(mailboxName, userId) {
+  async createMailbox(mailboxName, password, userId) {
     const domain = mailboxName.split("@")[1];
     if (!domain) throw new Error("Invalid email format");
-    await prisma.mailbox.create({
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const domainRecord = await Prisma.domain.findUnique({
+      where: { name: domain },
+    });
+    if (!domainRecord) throw new Error("Domain not found");
+
+    const mailbox = await prisma.mailbox.create({
       data: {
         emailAddress: mailboxName,
+        password: hashedPassword,
         userId,
-        domainId: (
-          await Prisma.domain.findUnique({ where: { name: domain } })
-        ).id,
+        domainId: domainRecord.id,
       },
     });
-    // optionally, verify email identity via SES here
-    return { success: true, email };
-  }
 
+    return {
+      success: true,
+      mailbox: {
+        id: mailbox.id,
+        emailAddress: mailbox.emailAddress,
+      },
+    };
+  }
   // Send email
   async sendEmail(from, to, subject, html, text) {
     const cmd = new SendEmailCommand({

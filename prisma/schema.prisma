@@ -33,14 +33,14 @@ enum MailboxStatus {
 }
 
 model User {
-  id             String        @id @default(cuid())
-  email          String        @unique
-  password       String
-  name           String
-  role           UserRole      @default(USER)
-  isActive       Boolean       @default(true)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(USER)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   subscriptions  Subscription[]
@@ -57,15 +57,15 @@ model Subscription {
   userId       String
   plan         SubscriptionPlan @default(FREE)
   startDate    DateTime         @default(now())
-  endDate      DateTime?        // null = active trial or plan
+  endDate      DateTime? // null = active trial or plan
   isActive     Boolean          @default(true)
   maxDomains   Int              @default(1)
   maxMailboxes Int              @default(1)
-  trialUsed    Boolean          @default(false)  // 8-day free trial flag
+  trialUsed    Boolean          @default(false) // 8-day free trial flag
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("subscriptions")
 }
@@ -77,14 +77,14 @@ model Domain {
   status            DomainStatus @default(PENDING)
   dkimEnabled       Boolean      @default(false)
   dkimTokens        String       @default("[]") // JSON array as string
-  hostedZoneId      String?                     // optional (CloudWatch only flow)
-  verificationToken String?                     // for manual verification fallback
+  hostedZoneId      String? // optional (CloudWatch only flow)
+  verificationToken String? // for manual verification fallback
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
-  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mailboxes         Mailbox[]
-  dnsRecords        DNSRecord[]
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mailboxes  Mailbox[]
+  dnsRecords DNSRecord[]
 
   @@map("domains")
 }
@@ -92,7 +92,7 @@ model Domain {
 model DNSRecord {
   id          String   @id @default(cuid())
   domainId    String
-  recordType  String   // TXT, MX, CNAME, etc.
+  recordType  String // TXT, MX, CNAME, etc.
   recordName  String
   recordValue String
   ttl         Int      @default(300)
@@ -100,24 +100,25 @@ model DNSRecord {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  domain      Domain   @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  domain Domain @relation(fields: [domainId], references: [id], onDelete: Cascade)
 
   @@map("dns_records")
 }
 
 model Mailbox {
-  id             String        @id @default(cuid())
-  emailAddress   String        @unique
-  userId         String
-  domainId       String
-  status         MailboxStatus @default(PENDING)
-  isActive       Boolean       @default(true)
-  lastLoginAt    DateTime?
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+  id           String        @id @default(cuid())
+  emailAddress String        @unique
+  password     String // <-- Add this line
+  userId       String
+  domainId     String
+  status       MailboxStatus @default(PENDING)
+  isActive     Boolean       @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 
-  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  domain         Domain        @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  domain         Domain          @relation(fields: [domainId], references: [id], onDelete: Cascade)
   sentEmails     SentEmail[]
   receivedEmails ReceivedEmail[]
 
@@ -125,18 +126,18 @@ model Mailbox {
 }
 
 model SentEmail {
-  id         String   @id @default(cuid())
-  mailboxId  String
-  userId     String
-  toEmail    String
-  subject    String
-  body       String
-  messageId  String?
-  status     String   @default("SENT") // SENT, FAILED, BOUNCED
-  sentAt     DateTime @default(now())
+  id        String   @id @default(cuid())
+  mailboxId String
+  userId    String
+  toEmail   String
+  subject   String
+  body      String
+  messageId String?
+  status    String   @default("SENT") // SENT, FAILED, BOUNCED
+  sentAt    DateTime @default(now())
 
-  mailbox    Mailbox  @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mailbox Mailbox @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("sent_emails")
 }
@@ -150,8 +151,8 @@ model ReceivedEmail {
   body       String
   receivedAt DateTime @default(now())
 
-  mailbox    Mailbox  @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mailbox Mailbox @relation(fields: [mailboxId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("received_emails")
 }
