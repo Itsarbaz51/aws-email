@@ -13,6 +13,7 @@ import {
 } from "@aws-sdk/client-cloudwatch-logs";
 import prisma from "../db/db.js";
 import dayjs from "dayjs";
+import Prisma from "../db/db.js";
 
 export class DomainEmailService {
   constructor() {
@@ -119,14 +120,16 @@ export class DomainEmailService {
   }
 
   // Mailbox creation
-  async createMailbox(domain, mailboxName, userId) {
-    const email = `${mailboxName}@${domain}`;
+  async createMailbox(mailboxName, userId) {
+    const email = mailboxName;
+    const domain = email.split("@")[1];
+    if (!domain) throw new Error("Invalid email format");
     await prisma.mailbox.create({
       data: {
         emailAddress: email,
         userId,
         domainId: (
-          await prisma.domain.findUnique({ where: { name: domain } })
+          await Prisma.domain.findUnique({ where: { name: domain } })
         ).id,
       },
     });
