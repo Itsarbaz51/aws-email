@@ -150,6 +150,13 @@ export class DomainEmailService {
   }
   // Send email
   async sendEmail(from, to, subject, html, text) {
+    const [fromDomain] = from.split("@").slice(-1);
+    const verified = await this.verifyDomainInSES(fromDomain);
+
+    if (!verified) {
+      throw new Error(`Domain ${fromDomain} is not verified in SES`);
+    }
+
     const cmd = new SendEmailCommand({
       Source: from,
       Destination: { ToAddresses: [to] },
@@ -158,6 +165,7 @@ export class DomainEmailService {
         Body: { Html: { Data: html }, Text: { Data: text || subject } },
       },
     });
+
     return this.ses.send(cmd);
   }
 }
