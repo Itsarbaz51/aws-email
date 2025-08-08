@@ -22,14 +22,6 @@ app.get("/", (req, res) => {
   res.send("🚀 Email SaaS API is Live!");
 });
 
-// All API Routes
-
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error("🔥 Global Error:", err.stack);
-  res.status(500).json({ error: "Internal Server Error" });
-});
-
 import authRoutes from "./routes/authRoute.js";
 import domainRoutes from "./routes/domainRoute.js";
 import mailboxRoutes from "./routes/mailboxRoute.js";
