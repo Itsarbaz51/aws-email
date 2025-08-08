@@ -121,12 +121,11 @@ export class DomainEmailService {
 
   // Mailbox creation
   async createMailbox(mailboxName, userId) {
-    const email = mailboxName;
-    const domain = email.split("@")[1];
+    const domain = mailboxName.split("@")[1];
     if (!domain) throw new Error("Invalid email format");
     await prisma.mailbox.create({
       data: {
-        emailAddress: email,
+        emailAddress: mailboxName,
         userId,
         domainId: (
           await Prisma.domain.findUnique({ where: { name: domain } })
