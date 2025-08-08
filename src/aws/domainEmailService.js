@@ -11,7 +11,6 @@ import {
   PutLogEventsCommand,
   GetLogEventsCommand,
 } from "@aws-sdk/client-cloudwatch-logs";
-import prisma from "../db/db.js";
 import dayjs from "dayjs";
 import Prisma from "../db/db.js";
 import bcrypt from "bcryptjs";
@@ -26,7 +25,7 @@ export class DomainEmailService {
   // 8-day free trial check
   async startFreeTrial(userId) {
     const trialEnd = dayjs().add(8, "day").toDate();
-    return prisma.subscription.create({
+    return Prisma.subscription.create({
       data: {
         userId,
         plan: "FREE",
@@ -55,7 +54,7 @@ export class DomainEmailService {
       value: token,
     });
 
-    const dbDomain = await prisma.domain.create({
+    const dbDomain = await Prisma.domain.create({
       data: { name: domain, userId, verificationToken: token },
     });
 
@@ -132,7 +131,7 @@ export class DomainEmailService {
     });
     if (!domainRecord) throw new Error("Domain not found");
 
-    const mailbox = await prisma.mailbox.create({
+    const mailbox = await Prisma.mailbox.create({
       data: {
         emailAddress: mailboxName,
         password: hashedPassword,

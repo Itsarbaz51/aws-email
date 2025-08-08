@@ -66,7 +66,22 @@ export const createMailbox = async (req, res) => {
 };
 
 export const sendTestEmail = async (req, res) => {
-  const { from, to, subject, html } = req.body;
-  const result = await svc.sendEmail(from, to, subject, html);
-  res.json({ success: true, messageId: result.MessageId });
+  const { from, to, subject, html, text } = req.body;
+
+  if (!from || !to || !subject || !html) {
+    return res.status(400).json({ error: "Missing required fields" });
+  }
+
+  try {
+    const result = await svc.sendEmail(from, to, subject, html, text);
+    res.json({ success: true, messageId: result.MessageId });
+  } catch (err) {
+    console.error("SES Error:", err);
+    res.status(500).json({
+      error:
+        err.name === "MessageRejected"
+          ? "Email address not verified in SES (sandbox mode?)"
+          : "Failed to send email",
+    });
+  }
 };
