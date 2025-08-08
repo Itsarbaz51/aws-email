@@ -17,7 +17,7 @@ export const getDNSRecords = async (req, res) => {
   if (!req.params.domain)
     return res.status(400).json({ error: "Domain required" });
   const domain = await Prisma.domain.findUnique({
-    where: { name: req.params.domain },
+    where: { id: req.params.domain },
   });
   if (!domain) return res.status(404).json({ error: "Domain not found" });
   console.log("domain", domain);
