@@ -94,9 +94,9 @@ export class DomainEmailService {
 
   async fetchDNSRecords(domain) {
     console.log("Fetching DNS records for domain:", domain);
-    const stream = domain.name;
+    const stream = domain.name.replace(/\./g, "-");
     console.log("Log stream:", stream);
-    
+
     const logs = await this.cw.send(
       new GetLogEventsCommand({
         logGroupName: this.logGroup,
@@ -105,7 +105,7 @@ export class DomainEmailService {
       })
     );
     console.log("Fetched logs:", logs);
-    
+
     return logs.events.map((e) => JSON.parse(e.message));
   }
 
