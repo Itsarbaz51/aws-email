@@ -51,7 +51,7 @@ export const verifyDomain = async (req, res) => {
 export const createMailbox = async (req, res) => {
   const { mailbox, password } = req.body;
   console.log(req.body);
-  log("req.user", req.user);
+  console.log("req.user", req.user);
 
   if (!mailbox || !password) {
     return res.status(400).json({ error: "Mailbox and password are required" });
