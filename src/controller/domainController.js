@@ -1,4 +1,5 @@
 import { DomainEmailService } from "../aws/domainEmailService.js";
+import Prisma from "../db/db.js";
 const svc = new DomainEmailService();
 
 export const createDomain = async (req, res) => {
@@ -13,7 +14,15 @@ export const createDomain = async (req, res) => {
 
 export const getDNSRecords = async (req, res) => {
   console.log("req.params.domain", req.params.domain);
-  const records = await svc.fetchDNSRecords(req.params.domain);
+  if (!req.params.domain)
+    return res.status(400).json({ error: "Domain required" });
+  const domain = await Prisma.domain.findUnique({
+    where: { name: req.params.domain },
+  });
+  if (!domain) return res.status(404).json({ error: "Domain not found" });
+  console.log("domain", domain);
+
+  const records = await svc.fetchDNSRecords(domain);
   res.json({ success: true, dnsRecords: records });
 };
 
