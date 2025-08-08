@@ -50,9 +50,9 @@ export const verifyDomain = async (req, res) => {
 
 export const createMailbox = async (req, res) => {
   const { mailbox, password } = req.body;
-  if (!mailbox || !password)
+  if (!mailbox || !password) {
     return res.status(400).json({ error: "Mailbox and password are required" });
-
+  }
   try {
     const result = await svc.createMailbox(mailbox, password, req.user.id);
     res.json(result);
