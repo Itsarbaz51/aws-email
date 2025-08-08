@@ -40,7 +40,7 @@ export const verifyDomain = async (req, res) => {
   if (!ok) return res.status(400).json({ error: "Verification failed" });
   if (ok)
     await Prisma.domain.update({
-      where: { name: req.params.domain },
+      where: { id: domain.id },
       data: { status: "VERIFIED" },
     });
   res.json({ success: ok, verified: ok });
