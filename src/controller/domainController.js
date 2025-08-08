@@ -38,11 +38,13 @@ export const verifyDomain = async (req, res) => {
   const ok = await svc.verifyDomainInSES(domain.name);
   console.log("ok", ok);
   if (!ok) return res.status(400).json({ error: "Verification failed" });
-  if (ok)
-    await Prisma.domain.update({
+  if (ok) {
+    const updated = await Prisma.domain.update({
       where: { id: domain.id },
       data: { status: "VERIFIED" },
     });
+    console.log("updated", updated);
+  }
   res.json({ success: ok, verified: ok });
 };
 
